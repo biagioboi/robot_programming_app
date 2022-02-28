@@ -35,10 +35,29 @@ class HomePage extends StatelessWidget {
 
         title: Text('Control Pad Example'),
       ),
-      body: Container(
-        child: JoystickView(
-          showArrows: true,
-        ),
+      body: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+          children:[ 
+            JoystickView(),
+            
+            ],
+          ),
+          Padding(padding: EdgeInsets.only(left: 10.0,right: 10.0)
+          ),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+          children:[ 
+            JoystickView(),
+            
+            ],
+          )
+        ],
+      
+
       ),
     );
   }
