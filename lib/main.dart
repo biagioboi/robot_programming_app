@@ -1,5 +1,6 @@
+import 'package:control_pad/views/joystick_view.dart';
 import 'package:flutter/material.dart';
-import 'package:control_pad/control_pad.dart';
+
 import 'package:flutter/services.dart';
 
 void main() {
@@ -42,7 +43,15 @@ class HomePage extends StatelessWidget {
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
           children:[ 
-            JoystickView(),
+            JoystickView(
+              showArrowsTopBottom: true,
+              showArrowsLeftRight:false ,
+              onDirectionChanged: (degrees, distance) {
+                if(degrees>=180){
+                  print(degrees);
+                }
+              },
+            ),
             
             ],
           ),
@@ -51,8 +60,16 @@ class HomePage extends StatelessWidget {
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
           children:[ 
-            JoystickView(),
-            
+            JoystickView(
+              showArrowsTopBottom: false,
+              showArrowsLeftRight:true ,
+              
+              onDirectionChanged: (degrees, distance) {
+                
+              },
+              
+            ),
+              
             ],
           )
         ],
