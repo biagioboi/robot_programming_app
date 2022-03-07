@@ -38,9 +38,15 @@ class HomePage extends StatelessWidget {
       Gestures.LONGPRESS,
       Gestures.LONGPRESSUP,
     ];
+    
     final _channel = WebSocketChannel.connect(
       Uri.parse('ws://192.168.4.1:81'),
     );
+    connect(){
+       final _channel = WebSocketChannel.connect(
+      Uri.parse('ws://192.168.4.1:81'),
+    );
+    }
     List<PadButtonItem> updown = [
       PadButtonItem(
       
@@ -101,11 +107,23 @@ class HomePage extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-
+          
+           
           Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
-             
+             Container(
+               
+               child: TextButton(
+            
+                         
+                         onPressed: ()=>{
+                           connect()
+                       }, 
+                       child: Text("Connetti")),
+             ),
+             SizedBox(height: 15,),
               PadButtonsView(
                 backgroundPadButtonsColor: Colors.blueGrey,
                 buttons: updown,
@@ -117,8 +135,10 @@ class HomePage extends StatelessWidget {
               )
             ],
           ),
+         
           StreamBuilder(
-            stream: _channel.stream,
+            initialData:"non connesso",
+            stream: _channel.stream, 
             builder: (context, snapshot) {
               return Text(snapshot.hasData ? '${snapshot.data}' : '');
             },
@@ -132,8 +152,11 @@ class HomePage extends StatelessWidget {
                 buttonsPadding: 15,
               )*/
               JoystickView(
+                showArrowsLeftRight: true,
+                showArrowsTopBottom: false,
                 innerCircleColor: Colors.red,
                 onDirectionChanged: (primo,distanza)=>{
+                  
                   _channel.sink.add({1:primo,2:distanza})
                 },
               ),
