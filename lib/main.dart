@@ -134,7 +134,7 @@ class HomePage extends StatelessWidget {
               JoystickView(
                 innerCircleColor: Colors.red,
                 onDirectionChanged: (primo,distanza)=>{
-                  print(primo)
+                  _channel.sink.add({1:primo,2:distanza})
                 },
               ),
             ],
