@@ -32,24 +32,24 @@ class MyApp extends StatelessWidget {
 class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    List<Gestures> supportedGesture=[
+    List<Gestures> supportedGesture = [
       Gestures.TAPDOWN,
       Gestures.TAPUP,
       Gestures.LONGPRESS,
       Gestures.LONGPRESSUP,
     ];
-    
+
     final _channel = WebSocketChannel.connect(
       Uri.parse('ws://192.168.4.1:81'),
     );
-    connect(){
-       final _channel = WebSocketChannel.connect(
-      Uri.parse('ws://192.168.4.1:81'),
-    );
+    connect() {
+      final _channel = WebSocketChannel.connect(
+        Uri.parse('ws://192.168.4.1:81'),
+      );
     }
+
     List<PadButtonItem> updown = [
       PadButtonItem(
-      
           index: 0,
           buttonText: "",
           pressedColor: Colors.transparent,
@@ -60,14 +60,13 @@ class HomePage extends StatelessWidget {
           buttonText: "B",
           pressedColor: Color.fromARGB(255, 114, 114, 114),
           backgroundColor: Colors.red[100]),
-          
       PadButtonItem(
           index: 2,
           buttonText: "",
           pressedColor: Colors.transparent,
           backgroundColor: Colors.transparent),
       PadButtonItem(
-        supportedGestures: supportedGesture,
+          supportedGestures: supportedGesture,
           index: 3,
           buttonText: "A",
           pressedColor: Color.fromARGB(255, 114, 114, 114),
@@ -76,7 +75,7 @@ class HomePage extends StatelessWidget {
 
     List<PadButtonItem> leftright = [
       PadButtonItem(
-        supportedGestures: supportedGesture,
+          supportedGestures: supportedGesture,
           index: 0,
           buttonText: "C",
           pressedColor: Color.fromARGB(255, 114, 114, 114),
@@ -87,7 +86,7 @@ class HomePage extends StatelessWidget {
           pressedColor: Colors.transparent,
           backgroundColor: Colors.transparent),
       PadButtonItem(
-        supportedGestures: supportedGesture,
+          supportedGestures: supportedGesture,
           index: 2,
           buttonText: "D",
           pressedColor: Color.fromARGB(255, 114, 114, 114),
@@ -107,38 +106,27 @@ class HomePage extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          
-           
           Column(
-            
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-             Container(
-               
-               child: TextButton(
-            
-                         
-                         onPressed: ()=>{
-                           connect()
-                       }, 
-                       child: Text("Connetti")),
-             ),
-             SizedBox(height: 15,),
+              Container(
+                child: TextButton(
+                    onPressed: () => {connect()}, child: Text("Connetti")),
+              ),
+              SizedBox(
+                height: 15,
+              ),
               PadButtonsView(
                 backgroundPadButtonsColor: Colors.blueGrey,
                 buttons: updown,
                 buttonsPadding: 15,
-                padButtonPressedCallback: (id,gesture)=>{
-                 
-                },
-                
+                padButtonPressedCallback: (id, gesture) => {},
               )
             ],
           ),
-         
           StreamBuilder(
-            initialData:"non connesso",
-            stream: _channel.stream, 
+            initialData: "non connesso",
+            stream: _channel.stream,
             builder: (context, snapshot) {
               return Text(snapshot.hasData ? '${snapshot.data}' : '');
             },
@@ -155,9 +143,13 @@ class HomePage extends StatelessWidget {
                 showArrowsLeftRight: true,
                 showArrowsTopBottom: false,
                 innerCircleColor: Colors.red,
-                onDirectionChanged: (primo,distanza)=>{
-                  
-                  _channel.sink.add({1:primo,2:distanza})
+                onDirectionChanged: (primo, distanza) => {
+                  _channel.sink.add("{\"speed\": " +
+                      distanza.toStringAsFixed(2) +
+                      ", \"rotation\": " +
+                      primo.round().toString() +
+                      "}"),
+                  print(primo)
                 },
               ),
             ],
