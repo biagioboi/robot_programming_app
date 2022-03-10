@@ -39,13 +39,15 @@ class HomePage extends StatelessWidget {
       Gestures.LONGPRESSUP,
     ];
 
-    final _channel = WebSocketChannel.connect(
+    var _channel = WebSocketChannel.connect(
       Uri.parse('ws://192.168.4.1:81'),
     );
+    var stream = _channel.stream;
     connect() {
-      final _channel = WebSocketChannel.connect(
+      _channel = WebSocketChannel.connect(
         Uri.parse('ws://192.168.4.1:81'),
       );
+      stream=_channel.stream;
     }
 
     List<PadButtonItem> updown = [
@@ -126,7 +128,7 @@ class HomePage extends StatelessWidget {
           ),
           StreamBuilder(
             initialData: "non connesso",
-            stream: _channel.stream,
+            stream: stream,
             builder: (context, snapshot) {
               return Text(snapshot.hasData ? '${snapshot.data}' : '');
             },
