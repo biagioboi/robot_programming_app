@@ -16,10 +16,7 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.landscapeLeft,
-      DeviceOrientation.landscapeRight,
-    ]);
+    
     return MaterialApp(
       title: 'Flutter Demo',
       theme:
@@ -29,16 +26,30 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  Color _color = Colors.red;
+  double _vel = 0;
+  String testo= " Km/h";
   @override
   Widget build(BuildContext context) {
-    List<Gestures> supportedGesture = [
-      Gestures.TAPDOWN,
-      Gestures.TAPUP,
-      Gestures.LONGPRESS,
-      Gestures.LONGPRESSUP,
-    ];
+  
+    cambiaColor(Color colore){
+      setState(() {
+        _color=colore;
 
+        
+       });
+    }
+    changeVel(double velocita){
+      setState(() {
+        _vel = velocita *10;
+      });
+    }
     var _channel = WebSocketChannel.connect(
       Uri.parse('ws://192.168.4.1:81'),
     );
@@ -49,91 +60,74 @@ class HomePage extends StatelessWidget {
       );
       stream=_channel.stream;
     }
-
-    List<PadButtonItem> updown = [
-      PadButtonItem(
-          index: 0,
-          buttonText: "",
-          pressedColor: Colors.transparent,
-          backgroundColor: Colors.transparent),
-      PadButtonItem(
-          supportedGestures: supportedGesture,
-          index: 1,
-          buttonText: "B",
-          pressedColor: Color.fromARGB(255, 114, 114, 114),
-          backgroundColor: Colors.red[100]),
-      PadButtonItem(
-          index: 2,
-          buttonText: "",
-          pressedColor: Colors.transparent,
-          backgroundColor: Colors.transparent),
-      PadButtonItem(
-          supportedGestures: supportedGesture,
-          index: 3,
-          buttonText: "A",
-          pressedColor: Color.fromARGB(255, 114, 114, 114),
-          backgroundColor: Colors.green[100]),
-    ];
-
-    List<PadButtonItem> leftright = [
-      PadButtonItem(
-          supportedGestures: supportedGesture,
-          index: 0,
-          buttonText: "C",
-          pressedColor: Color.fromARGB(255, 114, 114, 114),
-          backgroundColor: Colors.red[100]),
-      PadButtonItem(
-          index: 1,
-          buttonText: "",
-          pressedColor: Colors.transparent,
-          backgroundColor: Colors.transparent),
-      PadButtonItem(
-          supportedGestures: supportedGesture,
-          index: 2,
-          buttonText: "D",
-          pressedColor: Color.fromARGB(255, 114, 114, 114),
-          backgroundColor: Colors.green[100]),
-      PadButtonItem(
-          index: 3,
-          buttonText: "",
-          pressedColor: Colors.transparent,
-          backgroundColor: Colors.transparent),
-    ];
+    _channel.stream.listen(
+        (dynamic message) {
+          debugPrint('message $message');
+        },
+        onDone: () {
+          debugPrint('ws channel closed');
+        },
+        onError: (error) {
+          debugPrint('ws error $error');
+        },
+      );
+       
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text('Control Pad Example'),
       ),
-      body: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          Column(
-            mainAxisAlignment: MainAxisAlignment.start,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
                 child: TextButton(
-                    onPressed: () => {connect()}, child: Text("Connetti")),
+                  
+                    onPressed: () => {connect()}, child: Text("Connetti     ")),
               ),
-              SizedBox(
-                height: 15,
+              Text("Status:  "),
+              Container(
+                height: 20,
+                width: 20,
+                
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(100),
+                  color: _color,
+                  border: Border.all(
+                    width: 2
+                  ),
+                ),
               ),
-              PadButtonsView(
-                backgroundPadButtonsColor: Colors.blueGrey,
-                buttons: updown,
-                buttonsPadding: 15,
-                padButtonPressedCallback: (id, gesture) => {},
-              )
+          
             ],
           ),
-          StreamBuilder(
-            initialData: "non connesso",
-            stream: stream,
-            builder: (context, snapshot) {
-              return Text(snapshot.hasData ? '${snapshot.data}' : '');
-            },
+          Container( 
+            height: 20,
+            width: 100,
+            decoration: BoxDecoration(
+              color: Colors.lightGreen
+              
+            ),
+            
+            child: Center(
+              child:Text(_vel.toString()+testo)
+              
+            /*  child: StreamBuilder(
+                initialData: "0 km/h",
+                stream: stream,
+                builder: (context, snapshot) {
+                  if(snapshot.data=="Connected"){
+                    cambiaColor(Colors.green);
+                  }
+                  return Text(snapshot.hasData ? '${snapshot.data}' : '');
+                },
+              ),*/
+            ),
           ),
-          Column(
+          Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               /*PadButtonsView(
@@ -143,15 +137,16 @@ class HomePage extends StatelessWidget {
               )*/
               JoystickView(
                 showArrowsLeftRight: true,
-                showArrowsTopBottom: false,
-                innerCircleColor: Colors.red,
+                showArrowsTopBottom: true,
+                innerCircleColor: Colors.amber,
                 onDirectionChanged: (primo, distanza) => {
                   _channel.sink.add("{\"speed\": " +
                       distanza.toStringAsFixed(2) +
                       ", \"rotation\": " +
                       primo.round().toString() +
                       "}"),
-                  print(primo)
+                  print(primo),
+                  changeVel(distanza),
                 },
               ),
             ],
