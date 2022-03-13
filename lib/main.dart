@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:control_pad/control_pad.dart';
 import 'package:control_pad/models/gestures.dart';
 import 'package:control_pad/models/pad_button_item.dart';
 import 'package:control_pad/views/joystick_view.dart';
 import 'package:flutter/material.dart';
+import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:flutter/services.dart';
 
@@ -16,7 +19,6 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    
     return MaterialApp(
       title: 'Flutter Demo',
       theme:
@@ -32,47 +34,39 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  Color _color = Colors.red;
-  double _vel = 0;
-  String testo= " Km/h";
+  List<TextSpan> _lista = [TextSpan(text: "prova"), TextSpan(text: "prova2")];
+  /*TextSpan _span = TextSpan(
+    text: "not connected",
+    children:<TextSpan> [,
+  );*/
+
   @override
   Widget build(BuildContext context) {
   
-    cambiaColor(Color colore){
-      setState(() {
-        _color=colore;
-
-        
-       });
-    }
-    changeVel(double velocita){
-      setState(() {
-        _vel = velocita *10;
-      });
-    }
-    var _channel = WebSocketChannel.connect(
-      Uri.parse('ws://192.168.4.1:81'),
-    );
-    var stream = _channel.stream;
-    connect() {
-      _channel = WebSocketChannel.connect(
+    Color _color = Colors.red;
+    double _vel = 0;
+    String testo = " Km/h";
+    int count=1;
+    final _channel = WebSocketChannel.connect(
         Uri.parse('ws://192.168.4.1:81'),
       );
-      stream=_channel.stream;
-    }
-    _channel.stream.listen(
-        (dynamic message) {
-          debugPrint('message $message');
-        },
-        onDone: () {
-          debugPrint('ws channel closed');
-        },
-        onError: (error) {
-          debugPrint('ws error $error');
-        },
+    final stream = _channel.stream;
+    connect(){
+      setState(() {
+         final _channel = WebSocketChannel.connect(
+        Uri.parse('ws://192.168.4.1:81'),
       );
-       
+      final stream = _channel.stream;
+  
+      });
+   
+    }
+    
+    StreamController<String> stringController = StreamController<String>();
+    StreamController<String> colorsController = StreamController<String>();
+    colorsController.add("red");
     return Scaffold(
+      
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text('Control Pad Example'),
@@ -85,47 +79,81 @@ class _HomePageState extends State<HomePage> {
             children: [
               Container(
                 child: TextButton(
-                  
                     onPressed: () => {connect()}, child: Text("Connetti     ")),
               ),
               Text("Status:  "),
-              Container(
-                height: 20,
-                width: 20,
-                
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(100),
-                  color: _color,
-                  border: Border.all(
-                    width: 2
+              StreamBuilder(
+                stream: colorsController.stream,
+                builder: ((context, snapshot) {
+                  if(snapshot.hasData){
+                    if(snapshot.data.toString()=="green"){
+                    return  Container(
+                        height: 20,
+                        width: 20,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(100),
+                          color: Colors.green,
+                          border: Border.all(width: 2),
                   ),
-                ),
+                );
+                    }
+                    
+                  }
+                  return  Container(
+                        height: 20,
+                        width: 20,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(100),
+                          color: Colors.red,
+                          border: Border.all(width: 2),
+                  ),
+                ); 
+                   
+            
+                }),
               ),
-          
             ],
           ),
-          Container( 
-            height: 20,
-            width: 100,
-            decoration: BoxDecoration(
-              color: Colors.lightGreen
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Container(
+                height: 20,
+                width: 100,
+                decoration: const BoxDecoration(color: Colors.lightGreen),
+               child: Center(
+                 child: StreamBuilder(
+                   stream: stringController.stream,
+                   builder: ((context, snapshot) {
+                     if (snapshot.hasData){
+                       return Text(snapshot.data.toString() + "   Km/h");
+                     }else{
+                       return Text(testo);
+                     }
+                   })
+                 ),
+                 
+               )
+              ),
+              Container(
+                height: 20,
+                width: 100,
+                child: Center(child: 
+                StreamBuilder(
+                   stream: stream,
+                   builder: ((context, snapshot) {
+                     if (snapshot.connectionState==ConnectionState.active && snapshot.hasData){
+                       colorsController.add("green"); 
+                       return Text(snapshot.data.toString());
+                     }else{
+                       return Text("not connected");
+                     }
+                   })
+                 ),),
+              )
               
-            ),
-            
-            child: Center(
-              child:Text(_vel.toString()+testo)
-              
-            /*  child: StreamBuilder(
-                initialData: "0 km/h",
-                stream: stream,
-                builder: (context, snapshot) {
-                  if(snapshot.data=="Connected"){
-                    cambiaColor(Colors.green);
-                  }
-                  return Text(snapshot.hasData ? '${snapshot.data}' : '');
-                },
-              ),*/
-            ),
+            ],
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -140,13 +168,13 @@ class _HomePageState extends State<HomePage> {
                 showArrowsTopBottom: true,
                 innerCircleColor: Colors.amber,
                 onDirectionChanged: (primo, distanza) => {
+                  stringController.add(distanza.toString()),
                   _channel.sink.add("{\"speed\": " +
                       distanza.toStringAsFixed(2) +
                       ", \"rotation\": " +
                       primo.round().toString() +
                       "}"),
-                  print(primo),
-                  changeVel(distanza),
+                 
                 },
               ),
             ],
