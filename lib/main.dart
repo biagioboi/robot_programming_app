@@ -17,8 +17,14 @@ class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
   // This widget is the root of your application.
+  
   @override
   Widget build(BuildContext context) {
+    // Set landscape orientation
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+    ]);
     return MaterialApp(
       title: 'Flutter Demo',
       theme:
@@ -29,11 +35,13 @@ class MyApp extends StatelessWidget {
 }
 
 class HomePage extends StatefulWidget {
+  
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
+  
   List<TextSpan> _lista = [TextSpan(text: "prova"), TextSpan(text: "prova2")];
   /*TextSpan _span = TextSpan(
     text: "not connected",
@@ -42,7 +50,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-  
+    
     Color _color = Colors.red;
     double _vel = 0;
     String testo = " Km/h";
@@ -174,6 +182,19 @@ class _HomePageState extends State<HomePage> {
                   _channel.sink.add("{\"speed\": " +
                       distanza.toStringAsFixed(2) +
                       ", \"rotation\": " +
+                      primo.round().toString() +
+                      "}"),
+                 
+                },
+              ),
+              SizedBox(width: 100,),
+                 JoystickView(
+                showArrowsLeftRight: true,
+                showArrowsTopBottom: false,
+                innerCircleColor: Colors.red,
+                onDirectionChanged: (primo, distanza) => {
+                  
+                  _channel.sink.add("{\"rotation\": " +
                       primo.round().toString() +
                       "}"),
                  
