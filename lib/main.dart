@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
   // This widget is the root of your application.
-  
+
   @override
   Widget build(BuildContext context) {
     // Set landscape orientation
@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
       DeviceOrientation.landscapeRight,
     ]);
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Robot Programming App',
       theme:
           ThemeData(primarySwatch: Colors.blue, backgroundColor: Colors.white),
       home: HomePage(),
@@ -35,13 +35,11 @@ class MyApp extends StatelessWidget {
 }
 
 class HomePage extends StatefulWidget {
-  
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
-  
   List<TextSpan> _lista = [TextSpan(text: "prova"), TextSpan(text: "prova2")];
   /*TextSpan _span = TextSpan(
     text: "not connected",
@@ -50,34 +48,30 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    
     Color _color = Colors.red;
     double _vel = 0;
     String testo = " Km/h";
-    int count=1;
+    int count = 1;
     final _channel = WebSocketChannel.connect(
-        Uri.parse('ws://192.168.4.1:81'),
-      );
+      Uri.parse('ws://192.168.4.1:81'),
+    );
     final stream = _channel.stream;
-    connect(){
+    connect() {
       setState(() {
-         final _channel = WebSocketChannel.connect(
-        Uri.parse('ws://192.168.4.1:81'),
-      );
-      final stream = _channel.stream;
-  
+        final _channel = WebSocketChannel.connect(
+          Uri.parse('ws://192.168.4.1:81'),
+        );
+        final stream = _channel.stream;
       });
-   
     }
-    
+
     StreamController<String> stringController = StreamController<String>();
     StreamController<String> colorsController = StreamController<String>();
     colorsController.add("red");
     return Scaffold(
-      
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text('Control Pad Example'),
+        title: Text('Robot Programming App'),
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -87,37 +81,34 @@ class _HomePageState extends State<HomePage> {
             children: [
               Container(
                 child: TextButton(
-                    onPressed: () => {connect()}, child: Text("Connetti     ")),
+                    onPressed: () => {connect()}, child: Text("Connect     ")),
               ),
               Text("Status:  "),
               StreamBuilder(
                 stream: colorsController.stream,
                 builder: ((context, snapshot) {
-                  if(snapshot.hasData){
-                    if(snapshot.data.toString()=="green"){
-                    return  Container(
+                  if (snapshot.hasData) {
+                    if (snapshot.data.toString() == "green") {
+                      return Container(
                         height: 20,
                         width: 20,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(100),
                           color: Colors.green,
                           border: Border.all(width: 2),
-                  ),
-                );
+                        ),
+                      );
                     }
-                    
                   }
-                  return  Container(
-                        height: 20,
-                        width: 20,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(100),
-                          color: Colors.red,
-                          border: Border.all(width: 2),
-                  ),
-                ); 
-                   
-            
+                  return Container(
+                    height: 20,
+                    width: 20,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(100),
+                      color: Colors.red,
+                      border: Border.all(width: 2),
+                    ),
+                  );
                 }),
               ),
             ],
@@ -127,42 +118,40 @@ class _HomePageState extends State<HomePage> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Container(
-                height: 20,
-                width: 100,
-                decoration: const BoxDecoration(color: Colors.lightGreen),
-               child: Center(
-                 child: StreamBuilder(
-                   stream: stringController.stream,
-                   builder: ((context, snapshot) {
-                     if (snapshot.hasData){
-                       return 
-                       ListView(
-                         children: [Text(snapshot.data.toString() + "   Km/h")]);
-                     }else{
-                       return Text(testo);
-                     }
-                   })
-                 ),
-                 
-               )
-              ),
+                  height: 20,
+                  width: 100,
+                  decoration: const BoxDecoration(color: Colors.lightGreen),
+                  child: Center(
+                    child: StreamBuilder(
+                        stream: stringController.stream,
+                        builder: ((context, snapshot) {
+                          if (snapshot.hasData) {
+                            return ListView(children: [
+                              Text(snapshot.data.toString() + "   Km/h")
+                            ]);
+                          } else {
+                            return Text(testo);
+                          }
+                        })),
+                  )),
               Container(
                 height: 20,
                 width: 100,
-                child: Center(child: 
-                StreamBuilder(
-                   stream: stream,
-                   builder: ((context, snapshot) {
-                     if (snapshot.connectionState==ConnectionState.active && snapshot.hasData){
-                       colorsController.add("green"); 
-                       return Text(snapshot.data.toString());
-                     }else{
-                       return Text("not connected");
-                     }
-                   })
-                 ),),
+                child: Center(
+                  child: StreamBuilder(
+                      stream: stream,
+                      builder: ((context, snapshot) {
+                        if (snapshot.connectionState ==
+                                ConnectionState.active &&
+                            snapshot.hasData) {
+                          colorsController.add("green");
+                          return Text(snapshot.data.toString());
+                        } else {
+                          return Text("not connected");
+                        }
+                      })),
+                ),
               )
-              
             ],
           ),
           Row(
@@ -184,20 +173,31 @@ class _HomePageState extends State<HomePage> {
                       ", \"rotation\": " +
                       primo.round().toString() +
                       "}"),
-                 
                 },
               ),
-              SizedBox(width: 100,),
-                 JoystickView(
+              SizedBox(
+                width: 100,
+              ),
+              JoystickView(
                 showArrowsLeftRight: true,
                 showArrowsTopBottom: false,
                 innerCircleColor: Colors.red,
                 onDirectionChanged: (primo, distanza) => {
-                  
-                  _channel.sink.add("{\"rotation\": " +
-                      primo.round().toString() +
-                      "}"),
-                 
+                  if (primo.round() < 70 ||
+                      (primo.round() > 110 && primo.round() < 250) ||
+                      primo.round() > 290)
+                    {}
+                  else
+                    {
+                      if (primo < 160)
+                        {
+                          _channel.sink.add("{\"camera_rotate\": right}"),
+                        }
+                      else
+                        {
+                          _channel.sink.add("{\"camera_rotate\": left}"),
+                        }
+                    }
                 },
               ),
             ],
