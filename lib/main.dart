@@ -127,7 +127,9 @@ class _HomePageState extends State<HomePage> {
                    stream: stringController.stream,
                    builder: ((context, snapshot) {
                      if (snapshot.hasData){
-                       return Text(snapshot.data.toString() + "   Km/h");
+                       return 
+                       ListView(
+                         children: [Text(snapshot.data.toString() + "   Km/h")]);
                      }else{
                        return Text(testo);
                      }
